@@ -1,0 +1,65 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #FF914D;
+    padding-top: 20px;
+}
+
+/* Header styles */
+header {
+    background-color: #FF914D;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+/* Main styles */
+main {
+    padding: 20px;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.crypto-list {
+    list-style-type: none;
+}
+
+.crypto-list li {
+    margin-bottom: 10px;
+}
+
+.crypto-list li span {
+    font-weight: bold;
+}
+
+.loading {
+    color: #999;
+}
+
+/* Footer styles */
+footer {
+    background-color: #FF914D;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
