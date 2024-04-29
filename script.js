@@ -49,6 +49,46 @@ function USDC() {
         });
 }
 
-setInterval(BTC, 3000);
-setInterval(ETH, 3000);
-setInterval(USDC, 3000);
+setInterval(BTC, 5000);
+setInterval(ETH, 5000);
+setInterval(USDC, 5000);
+
+const apiUrl = 'https://cryptopanic.com/api/v1/posts/';
+
+// Função para exibir notícias
+function displayNews(news) {
+    const newsList = document.getElementById('news-list');
+    newsList.innerHTML = '';
+
+    if (news && news.results.length > 0) {
+        news.results.forEach(article => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <a href="${article.url}" target="_blank">
+                    <h2>${article.title}</h2>
+                </a>
+                <p>${article.published_at}</p>
+                <p>${article.domain}</p>
+            `;
+            newsList.appendChild(listItem);
+        });
+    } else {
+        const listItem = document.createElement('li');
+        listItem.textContent = 'Nenhuma notícia encontrada.';
+        newsList.appendChild(listItem);
+    }
+}
+
+// Função para buscar notícias da API
+async function getNews() {
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        displayNews(data);
+    } catch (error) {
+        console.error('Erro ao obter notícias:', error);
+    }
+}
+
+// Chama a função para buscar notícias ao carregar a página
+window.onload = getNews;
