@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import "./styles.css";
 
+// Importando imagens corretamente
+import btcImg from "./assets/img/btc.png";
+import ethImg from "./assets/img/eth.png";
+import usdcImg from "./assets/img/usdc.png";
+
 // Tipagem das notícias
 interface NewsArticle {
   id: string;
@@ -91,17 +96,17 @@ function App() {
         <h2>Criptomoedas</h2>
         <ul className="crypto-list">
           <li className="Bitcoin">
-            <img src="/src/assets/img/btc.png" alt="logo do bitcoin" className="imagem" />
+            <img src={btcImg} alt="logo do bitcoin" className="imagem" />
             <span>Bitcoin (BTC)</span>
             <p>{btcPrice ? formatPrice(btcPrice) : "Carregando..."}</p>
           </li>
           <li>
-            <img src="/src/assets/img/eth.png" alt="logo do ethereum" className="imagem" />
+            <img src={ethImg} alt="logo do ethereum" className="imagem" />
             <span>Ethereum (ETH)</span>
             <p>{ethPrice ? formatPrice(ethPrice) : "Carregando..."}</p>
           </li>
           <li>
-            <img src="/src/assets/img/usdc.png" alt="logo do usdc coin" className="imagem" />
+            <img src={usdcImg} alt="logo do usdc coin" className="imagem" />
             <span>USD Coin (USDC)</span>
             <p>{usdcPrice ? formatPrice(usdcPrice) : "Carregando..."}</p>
           </li>
