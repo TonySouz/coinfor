@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './styles.css';
 
 function App() {
@@ -7,31 +7,34 @@ function App() {
   const [usdcPrice, setUsdcPrice] = useState(null);
   const [news, setNews] = useState([]);
 
-  // Funções de fetch para criptomoedas
-  function fetchBtcPrice() {
-    fetch('https://api.coinbase.com/v2/prices/BTC-BRL/spot')
-      .then(response => response.json())
-      .then(data => setBtcPrice(parseFloat(data.data.amount).toFixed(2)))
-      .catch(error => console.error('Houve um problema ao buscar os dados do BTC:', error));
+  // 🔹 Função para formatar o preço em BRL
+  const formatPrice = (value) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
+
+  // 🔹 Busca todas as criptomoedas de uma vez
+  async function fetchAllPrices() {
+    try {
+      const [btc, eth, usdc] = await Promise.all([
+        fetch('https://api.coinbase.com/v2/prices/BTC-BRL/spot').then((res) => res.json()),
+        fetch('https://api.coinbase.com/v2/prices/ETH-BRL/spot').then((res) => res.json()),
+        fetch('https://api.coinbase.com/v2/prices/USDC-BRL/spot').then((res) => res.json()),
+      ]);
+
+      setBtcPrice(parseFloat(btc.data.amount).toFixed(2));
+      setEthPrice(parseFloat(eth.data.amount).toFixed(2));
+      setUsdcPrice(parseFloat(usdc.data.amount).toFixed(2));
+    } catch (error) {
+      console.error('Erro ao buscar preços:', error);
+    }
   }
 
-  function fetchEthPrice() {
-    fetch('https://api.coinbase.com/v2/prices/ETH-BRL/spot')
-      .then(response => response.json())
-      .then(data => setEthPrice(parseFloat(data.data.amount).toFixed(2)))
-      .catch(error => console.error('Houve um problema ao buscar os dados do ETH:', error));
-  }
-
-  function fetchUsdcPrice() {
-    fetch('https://api.coinbase.com/v2/prices/USDC-BRL/spot')
-      .then(response => response.json())
-      .then(data => setUsdcPrice(parseFloat(data.data.amount).toFixed(2)))
-      .catch(error => console.error('Houve um problema ao buscar os dados do USDC:', error));
-  }
-
-  // Função para buscar notícias
+  // 🔹 Busca notícias usando a key pública (demo)
   async function fetchNews() {
-    const apiUrl = 'https://cryptopanic.com/api/v1/posts/';
+    const apiUrl = 'https://cryptopanic.com/api/v1/posts/?auth_token=demo&public=true';
+
     try {
       const response = await fetch(apiUrl);
       const data = await response.json();
@@ -41,22 +44,14 @@ function App() {
     }
   }
 
-  // Efeitos para chamadas periódicas de preços
+  // 🔹 Atualiza os preços periodicamente
   useEffect(() => {
-    fetchBtcPrice();
-    fetchEthPrice();
-    fetchUsdcPrice();
-
-    const interval = setInterval(() => {
-      fetchBtcPrice();
-      fetchEthPrice();
-      fetchUsdcPrice();
-    }, 3000); // Atualiza a cada 3 segundos
-
-    return () => clearInterval(interval); // Limpa o intervalo quando o componente é desmontado
+    fetchAllPrices();
+    const interval = setInterval(fetchAllPrices, 10000); // atualiza a cada 10s
+    return () => clearInterval(interval);
   }, []);
 
-  // Efeito para buscar notícias ao carregar a página
+  // 🔹 Busca notícias ao carregar
   useEffect(() => {
     fetchNews();
   }, []);
@@ -74,35 +69,42 @@ function App() {
           </ul>
         </nav>
       </header>
+
       <main>
         <h2>Criptomoedas</h2>
         <ul className="crypto-list">
           <li className="Bitcoin">
             <img src="/src/assets/img/btc.png" alt="logo do bitcoin" className="imagem" />
-            <span>Bitcoin BTC</span>
-            <p>{btcPrice ? `R$ ${btcPrice}` : 'Carregando...'}</p>
+            <span>Bitcoin (BTC)</span>
+            <p>{btcPrice ? formatPrice(btcPrice) : 'Carregando...'}</p>
           </li>
           <li>
             <img src="/src/assets/img/eth.png" alt="logo do ethereum" className="imagem" />
-            <span>Ethereum ETH</span>
-            <p>{ethPrice ? `R$ ${ethPrice}` : 'Carregando...'}</p>
+            <span>Ethereum (ETH)</span>
+            <p>{ethPrice ? formatPrice(ethPrice) : 'Carregando...'}</p>
           </li>
           <li>
             <img src="/src/assets/img/usdc.png" alt="logo do usdc coin" className="imagem" />
-            <span>USD Coin USDC</span>
-            <p>{usdcPrice ? `R$ ${usdcPrice}` : 'Carregando...'}</p>
+            <span>USD Coin (USDC)</span>
+            <p>{usdcPrice ? formatPrice(usdcPrice) : 'Carregando...'}</p>
           </li>
         </ul>
+
         <h2>Notícias sobre Criptomoedas</h2>
         <ul id="news-list">
           {news.length > 0 ? (
-            news.map(article => (
+            news.map((article) => (
               <li key={article.id}>
                 <a href={article.url} target="_blank" rel="noopener noreferrer">
-                  <h2>{article.title}</h2>
+                  <h3>{article.title || 'Notícia sem título'}</h3>
                 </a>
-                <p>{article.published_at}</p>
-                <p>{article.domain}</p>
+                <p><strong>Fonte:</strong> {article.domain}</p>
+                <p>
+                  <strong>Publicado em:</strong>{' '}
+                  {article.published_at
+                    ? new Date(article.published_at).toLocaleString('pt-BR')
+                    : 'Data não disponível'}
+                </p>
               </li>
             ))
           ) : (
@@ -110,8 +112,9 @@ function App() {
           )}
         </ul>
       </main>
+
       <footer>
-        <p>&copy; 2024 Coinfor. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Coinfor. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
